@@ -1,0 +1,11 @@
+--- busybox-1.15.2/procps/fuser.c.orig	2009-09-26 22:14:57.000000000 +0900
++++ busybox-1.15.2/procps/fuser.c	2009-10-22 23:41:58.000000000 +0900
+@@ -11,7 +11,7 @@
+ 
+ #define MAX_LINE 255
+ 
+-#define OPTION_STRING "mks64"
++#define OPTION_STRING "mks64v"
+ enum {
+ 	OPT_MOUNT  = (1 << 0),
+ 	OPT_KILL   = (1 << 1),

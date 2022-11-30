@@ -1,0 +1,58 @@
+--- unzip.c.orig	Sat Jul  1 07:42:04 2006
++++ unzip.c	Fri Oct  6 13:08:18 2006
+@@ -144,7 +144,7 @@
+ 	char key_buf[512];
+ 	struct stat stat_buf;
+ 
+-	while((opt = getopt(argc, argv, "-d:lnopqx")) != -1) {
++	while((opt = getopt(argc, argv, "-d:lnopqxj")) != -1) {
+ 		switch(opt_range) {
+ 		case 0: /* Options */
+ 			switch(opt) {
+@@ -167,6 +167,10 @@
+ 				verbosity = (verbosity == v_normal) ? v_silent : verbosity;
+ 				break;
+ 
++			case 'x': /* extract */
++			case 'j': /* junk paths */
++				break;	// avoid error
++
+ 			case 1 : /* The zip file */
+ 				src_fn = bb_xstrndup(optarg, strlen(optarg)+4);
+ 				opt_range++;
+@@ -239,7 +243,7 @@
+ 	if (base_dir)
+ 		bb_xchdir(base_dir);
+ 
+-	if (verbosity != v_silent)
++	if (verbosity != v_silent && verbosity != v_list)
+ 		printf("Archive:  %s\n", src_fn);
+ 
+ 	failed = 0;
+@@ -281,11 +285,11 @@
+ 		/* Skip extra header bytes */
+ 		unzip_skip(src_fd, zip_header.formated.extra_len);
+ 
+-		if ((verbosity == v_list) && !list_header_done){
++		/*if ((verbosity == v_list) && !list_header_done){
+ 			printf("  Length     Date   Time    Name\n"
+ 				   " --------    ----   ----    ----\n");
+ 			list_header_done = 1;
+-		}
++		}*/
+ 
+ 		/* Filter zip entries */
+ 		if (find_list_entry(zreject, dst_fn) ||
+@@ -409,10 +413,10 @@
+ 		}
+ 	}
+ 
+-	if (verbosity == v_list) {
++	/*if (verbosity == v_list) {
+ 		printf(" --------                   -------\n"
+ 		       "%9d                   %d files\n", total_size, total_entries);
+-	}
++	}*/
+ 
+ 	return failed;
+ }

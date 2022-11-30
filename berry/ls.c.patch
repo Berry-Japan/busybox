@@ -1,0 +1,21 @@
+--- busybox-1.15.2/coreutils/ls.c.orig	2009-10-08 09:59:09.000000000 +0900
++++ busybox-1.15.2/coreutils/ls.c	2009-10-22 23:40:24.000000000 +0900
+@@ -219,9 +219,8 @@ static const unsigned opt_flags[] = {
+ #endif
+ #if ENABLE_SELINUX
+ 	LIST_MODEBITS|LIST_NLINKS|LIST_CONTEXT|LIST_SIZE|LIST_DATE_TIME, /* K */
+-#endif
+-#if ENABLE_SELINUX
+ 	LIST_MODEBITS|LIST_ID_NAME|LIST_CONTEXT, /* Z */
++	LIST_CONTEXT, /* scontext (add by Yuichiro Nakada) */
+ #endif
+ 	(1U<<31)
+ 	/* options after Z are not processed through opt_flags:
+@@ -904,6 +903,7 @@ int ls_main(int argc UNUSED_PARAM, char 
+ 	 * (and substrings: "--color=alwa" work too)
+ 	 */
+ 	static const char ls_longopts[] ALIGN1 =
++		"scontext\0" No_argument "\xfe"	// for SELinux by Nakada
+ 		"color\0" Optional_argument "\xff"; /* no short equivalent */
+ 	static const char color_str[] ALIGN1 =
+ 		"always\0""yes\0""force\0"

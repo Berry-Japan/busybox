@@ -1,0 +1,22 @@
+--- sed.c.orig	Wed Oct 25 05:21:17 2006
++++ sed.c	Sat Nov  4 22:12:04 2006
+@@ -103,7 +103,7 @@
+ 
+ 	regmatch_t regmatch[10];
+ 	regex_t *previous_regex_ptr;
+-	
++
+ 	/* linked list of sed commands */
+ 	sed_cmd_t sed_cmd_head, *sed_cmd_tail;
+ 
+@@ -175,6 +175,10 @@
+ 		if(string[i] == '\\') {
+ 			if(!to || string[i+1] == from) {
+ 				*(dest++) = to ? to : string[i+1];
++				i+=2;
++				continue;
++			} if (!to || string[i+1] == 't') {
++				*(dest++) = '\t';
+ 				i+=2;
+ 				continue;
+ 			} else *(dest++)=string[i++];

@@ -1,0 +1,56 @@
+--- mount.c.orig	Wed Oct 25 05:21:17 2006
++++ mount.c	Sat Nov  4 22:02:36 2006
+@@ -48,6 +48,13 @@
+ /* Standard mount options (from -o options or --options), with corresponding
+  * flags */
+ 
++// Add by Nakada
++#define MS_USERS	0x40000000
++#define MS_USER		0x20000000
++#define MS_OWNER	0x10000000
++#define MS_GROUP	0x08000000
++#define MS_COMMENT	0x00020000
++
+ struct {
+ 	const char *name;
+ 	long flags;
+@@ -76,13 +83,28 @@
+ 	{"nodiratime", MS_NODIRATIME},
+ 	{"loud", ~MS_SILENT},
+ 
++	// Add by Nakada
++	//{"dirsync",	MS_DIRSYNC},	/* synchronous directory modifications */
++	{"auto",	~MOUNT_NOAUTO},
++	{"users",	MS_USERS},	/* Allow ordinary user to mount */
++	{"nousers",	~MS_USERS},	/* Forbid ordinary user to mount */
++	{"user",	MS_USER},	/* Allow ordinary user to mount */
++	{"nouser",	~MS_USER},	/* Forbid ordinary user to mount */
++	{"owner",	MS_OWNER},	/* Let the owner of the device mount */
++	{"noowner",	~MS_OWNER},	/* Device owner has no special privs */
++	{"group",	MS_GROUP},	/* Let the group of the device mount */
++	{"nogroup",	~MS_GROUP},	/* Device group has no special privs */
++	{"_netdev",	MS_COMMENT},	/* Device requires network */
++	{"comment",	MS_COMMENT},	/* fstab comment only (kudzu,_netdev)*/
++	//{"rbind",	MS_BIND|MS_REC}, /* Idem, plus mounted subtrees */
++
+ 	// action flags
+ 
+ 	{"remount", MS_REMOUNT},
+ 	{"bind", MS_BIND},
+ 	{"move", MS_MOVE},
+-	{"noauto",MOUNT_NOAUTO},
+-	{"swap",MOUNT_SWAP}
++	{"noauto", MOUNT_NOAUTO},
++	{"swap", MOUNT_SWAP}
+ };
+ 
+ /* Append mount options to string */
+@@ -283,7 +305,7 @@
+ 			mp->mnt_type = "nfs";
+ 			rc = mount_it_now(mp, vfsflags, filteropts);
+ 			if (ENABLE_FEATURE_CLEAN_UP) free(filteropts);
+-			
++
+ 			goto report_error;
+ 		}
+ 	}

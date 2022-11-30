@@ -1,0 +1,25 @@
+--- mktemp.c.orig	2014-01-10 03:15:44.000000000 +0900
++++ mktemp.c	2014-01-20 15:57:39.336096000 +0900
+@@ -53,6 +53,12 @@
+ 
+ #include "libbb.h"
+ 
++//#if ENABLE_FEATURE_MKTEMP_LONG_OPTIONS
++static const char mktemp_longopts[] ALIGN1 =
++	"tmpdir\0"    Required_argument "p"
++	;
++//#endif
++
+ int mktemp_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
+ int mktemp_main(int argc UNUSED_PARAM, char **argv)
+ {
+@@ -71,6 +77,9 @@ int mktemp_main(int argc UNUSED_PARAM, c
+ 	if (!path || path[0] == '\0')
+ 		path = "/tmp";
+ 
++//#if ENABLE_FEATURE_MKTEMP_LONG_OPTIONS
++	applet_long_options = mktemp_longopts;
++//#endif
+ 	opt_complementary = "?1"; /* 1 argument max */
+ 	opts = getopt32(argv, "dqtp:u", &path);
+ 

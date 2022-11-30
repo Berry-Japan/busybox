@@ -1,0 +1,10 @@
+--- chmod.c.orig	Sat Jul  1 07:42:07 2006
++++ chmod.c	Sat Oct  7 15:57:22 2006
+@@ -56,6 +56,7 @@
+ 				while (*s == 'R') {
+ 					++s;
+ 				}
++				while (*s == 'f') ++s;	// avoid error
+ 				if (*s) {
+ 					bb_show_usage();
+ 				}

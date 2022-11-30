@@ -1,0 +1,85 @@
+--- sysctl.c.orig	Sat Jul  1 07:42:12 2006
++++ sysctl.c	Sat Oct  7 16:32:54 2006
+@@ -68,7 +68,7 @@
+ int sysctl_main(int argc, char **argv)
+ {
+ 	int retval = 0;
+-	int output = 1;
++	int output = 0;
+ 	int write_mode = 0;
+ 	int switches_allowed = 1;
+ 
+@@ -81,8 +81,14 @@
+ 		if (switches_allowed && **argv == '-') {	/* we have a switch */
+ 			switch ((*argv)[1]) {
+ 			case 'n':
+-				output = 0;
++				output |= 1;
+ 				break;
++			case 'q':
++				output |= 2;
++				break;
++			case 'e':
++				output |= 4;
++				break;
+ 			case 'w':
+ 				write_mode = 1;
+ 				switches_allowed = 0;
+@@ -214,6 +220,7 @@
+ 	if ((fd = open(tmpname, O_WRONLY | O_CREAT | O_TRUNC, 0666)) < 0) {
+ 		switch (errno) {
+ 		case ENOENT:
++			if (!(output&4))
+ 			bb_error_msg(ERR_INVALID_KEY, outname);
+ 			break;
+ 		case EACCES:
+@@ -227,12 +234,14 @@
+ 	} else {
+ 		dwrite_str(fd, value);
+ 		close(fd);
+-		if (output) {
++		if (!(output&1)) {
+ 			dwrite_str(STDOUT_FILENO, outname);
+ 			dwrite_str(STDOUT_FILENO, " = ");
+ 		}
+-		dwrite_str(STDOUT_FILENO, value);
+-		dwrite_str(STDOUT_FILENO, "\n");
++		if (!(output&2)) {
++			dwrite_str(STDOUT_FILENO, value);
++			dwrite_str(STDOUT_FILENO, "\n");
++		}
+ 	}
+ 
+ 	/* cleanup */
+@@ -255,6 +264,7 @@
+ 	FILE *fp;
+ 
+ 	if (!setting || !*setting)
++		if (!(output&4))
+ 		bb_error_msg(ERR_INVALID_KEY, setting);
+ 
+ 	tmpname = concat_path_file(PROC_PATH, name);
+@@ -268,6 +278,7 @@
+ 	if ((fp = fopen(tmpname, "r")) == NULL) {
+ 		switch (errno) {
+ 		case ENOENT:
++			if (!(output&4))
+ 			bb_error_msg(ERR_INVALID_KEY, outname);
+ 			break;
+ 		case EACCES:
+@@ -280,11 +291,13 @@
+ 		retval = -1;
+ 	} else {
+ 		while (fgets(inbuf, sizeof(inbuf) - 1, fp)) {
+-			if (output) {
++			if (!(output&1)) {
+ 				dwrite_str(STDOUT_FILENO, outname);
+ 				dwrite_str(STDOUT_FILENO, " = ");
+ 			}
+-			dwrite_str(STDOUT_FILENO, inbuf);
++			if (!(output&2)) {
++				dwrite_str(STDOUT_FILENO, inbuf);
++			}
+ 		}
+ 		fclose(fp);
+ 	}

@@ -1,0 +1,12 @@
+--- ps.c.orig	2010-07-06 11:25:54.000000000 +0900
++++ ps.c	2010-08-13 13:25:38.000000000 +0900
+@@ -26,7 +26,8 @@ enum { MAX_WIDTH = 2*1024 };
+ #define SELINUX_O_PREFIX "label,"
+ #define DEFAULT_O_STR    (SELINUX_O_PREFIX "pid,user" IF_FEATURE_PS_TIME(",time") ",args")
+ #else
+-#define DEFAULT_O_STR    ("pid,user" IF_FEATURE_PS_TIME(",time") ",args")
++//#define DEFAULT_O_STR    ("pid,user" IF_FEATURE_PS_TIME(",time") ",args")
++#define DEFAULT_O_STR    ("user,pid" IF_FEATURE_PS_TIME(",time") ",args")
+ #endif
+ 
+ typedef struct {

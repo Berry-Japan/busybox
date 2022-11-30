@@ -1,0 +1,11 @@
+--- busybox-1.15.2/scripts/trylink.orig	2009-09-26 22:14:57.000000000 +0900
++++ busybox-1.15.2/scripts/trylink	2009-10-23 10:16:10.000000000 +0900
+@@ -78,7 +78,7 @@ EXE="$1"
+ CC="$2"
+ CFLAGS="$3"
+ LDFLAGS="$4"
+-O_FILES="$5"
++O_FILES=$(echo "$5" | sed 's:applets/built-in.o::')
+ A_FILES="$6"
+ LDLIBS="$7"
+ 

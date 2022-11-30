@@ -1,0 +1,51 @@
+--- touch.c.orig	Sat Jul  1 07:42:07 2006
++++ touch.c	Mon Nov  6 12:22:19 2006
+@@ -39,13 +39,25 @@
+ #include <stdlib.h>
+ #include "busybox.h"
+ 
++//#if ENABLE_FEATURE_TOUCH_LONG_OPTIONS
++#include <getopt.h> /* struct option */
++static const struct option touch_long_options[] = {
++	{ "no-create", 0, NULL, 'c' },
++	{ "reference", 1/*=*/, NULL, 'r' },
++	{ 0, 0, 0, 0 }
++};
++//#endif
++
+ int touch_main(int argc, char **argv)
+ {
+ 	int fd;
+ 	int flags;
+ 	int status = EXIT_SUCCESS;
+ 
+-	flags = bb_getopt_ulflags(argc, argv, "c");
++//#if ENABLE_FEATURE_TOUCH_LONG_OPTIONS
++	bb_applet_long_options = touch_long_options;
++//#endif
++	flags = bb_getopt_ulflags(argc, argv, "cr");
+ 
+ 	argv += optind;
+ 
+@@ -53,8 +65,20 @@
+ 		bb_show_usage();
+ 	}
+ 
++	// r option by Yuichiro Nakada
++	struct utimbuf *u = NULL;
++	if (flags & 2) {
++		struct stat s;
++		if (stat(*argv++, &s)) bb_perror_msg("%s", *--argv);
++		struct utimbuf uu;
++		uu.actime = s.st_atime;
++		uu.modtime = s.st_mtime;
++		u = &uu;
++	}
++
+ 	do {
+-		if (utime(*argv, NULL)) {
++		//if (utime(*argv, NULL)) {
++		if (utime(*argv, u)) {
+ 			if (errno == ENOENT) {	/* no such file*/
+ 				if (flags & 1) {	/* Creation is disabled, so ignore. */
+ 					continue;

@@ -1,0 +1,11 @@
+--- busybox-1.15.2/sysklogd/logger.c.orig	2009-09-26 22:14:57.000000000 +0900
++++ busybox-1.15.2/sysklogd/logger.c	2009-10-23 10:20:26.000000000 +0900
+@@ -79,7 +79,7 @@ int logger_main(int argc, char **argv)
+ 	str_t = uid2uname_utoa(geteuid());
+ 
+ 	/* Parse any options */
+-	opt = getopt32(argv, "p:st:", &str_p, &str_t);
++	opt = getopt32(argv, "p:st:i", &str_p, &str_t);
+ 
+ 	if (opt & 0x2) /* -s */
+ 		i |= LOG_PERROR;

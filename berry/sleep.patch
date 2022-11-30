@@ -1,0 +1,103 @@
+--- sleep.c.orig	Sat Jul  1 07:42:07 2006
++++ sleep.c	Fri Oct  6 17:15:50 2006
+@@ -36,6 +36,67 @@
+ #include <unistd.h>
+ #include "busybox.h"
+ 
++/* by Yuichiro Nakada */
++#include <errno.h>
++#include <assert.h>
++
++float bb_xgetfloat_bnd_sfx(const char *arg, float lower, float upper, const struct suffix_mult *suffixes)
++{
++	float r;
++	int old_errno;
++	char *e;
++
++	assert(arg);
++
++	/* Disallow '-' and any leading whitespace.  Speed isn't critical here
++	 * since we're parsing commandline args.  So make sure we get the
++	 * actual isspace function rather than a larger macro implementaion. */
++	if ((*arg == '-') || (isspace)(*arg)) {
++		bb_show_usage();
++	}
++
++	/* Since this is a lib function, we're not allowed to reset errno to 0.
++	 * Doing so could break an app that is deferring checking of errno.
++	 * So, save the old value so that we can restore it if successful. */
++	old_errno = errno;
++	errno = 0;
++	r = strtof(arg, &e);
++	/* Do the initial validity check.  Note: The standards do not
++	 * guarantee that errno is set if no digits were found.  So we
++	 * must test for this explicitly. */
++	if (errno || (arg == e)) {	/* error or no digits */
++		bb_show_usage();
++	}
++	errno = old_errno;	/* Ok.  So restore errno. */
++
++	/* Do optional suffix parsing.  Allow 'empty' suffix tables.
++	 * Note that we also all nul suffixes with associated multipliers,
++	 * to allow for scaling of the arg by some default multiplier. */
++
++	if (suffixes) {
++		while (suffixes->suffix) {
++			if (strcmp(suffixes->suffix, e) == 0) {
++				if (ULONG_MAX / suffixes->mult < r) {	/* Overflow! */
++					bb_show_usage();
++				}
++				++e;
++				r *= suffixes->mult;
++				break;
++			}
++			++suffixes;
++		}
++	}
++
++	/* Finally, check for illegal trailing chars and range limits. */
++	/* Note: although we allow leading space (via stroul), trailing space
++	 * is an error.  It would be easy enough to allow though if desired. */
++	if (*e || (r < lower) || (r > upper)) {
++		bb_show_usage();
++	}
++
++	return r;
++}
++
+ #ifdef CONFIG_FEATURE_FANCY_SLEEP
+ static const struct suffix_mult sleep_suffixes[] = {
+ 	{ "s", 1 },
+@@ -48,7 +109,8 @@
+ 
+ int sleep_main(int argc, char **argv)
+ {
+-	unsigned int duration;
++	//unsigned int duration;
++	float duration;
+ 
+ #ifdef CONFIG_FEATURE_FANCY_SLEEP
+ 
+@@ -59,9 +121,10 @@
+ 	++argv;
+ 	duration = 0;
+ 	do {
+-		duration += bb_xgetularg_bnd_sfx(*argv, 10,
++		/*duration += bb_xgetularg_bnd_sfx(*argv, 10,
+ 										 0, UINT_MAX-duration,
+-										 sleep_suffixes);
++										 sleep_suffixes);*/
++		duration += bb_xgetfloat_bnd_sfx(*argv, 0, UINT_MAX-duration, sleep_suffixes) *1000*1000;	// to nano sec
+ 	} while (*++argv);
+ 
+ #else  /* CONFIG_FEATURE_FANCY_SLEEP */
+@@ -78,7 +141,8 @@
+ 
+ #endif /* CONFIG_FEATURE_FANCY_SLEEP */
+ 
+-	if (sleep(duration)) {
++	//if (sleep(duration)) {
++	if (usleep(duration)) {
+ 		bb_perror_nomsg_and_die();
+ 	}
+ 

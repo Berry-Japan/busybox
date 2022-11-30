@@ -1,0 +1,13 @@
+#!/bin/sh
+mkdir ./original+
+cd ./original+
+for name in coreutils util-linux sysklogd
+do
+	rpm2cpio ~/berry/system/rpm/${name}* | cpio -id
+done
+cd ..
+
+mkdir -p ./original/{bin,sbin,usr/bin}
+mv ./original+/bin/{chgrp,cp,mount,umount} ./original/bin/
+mv ./original+/sbin/{hwclock,syslogd} ./original/sbin/
+mv ./original+/usr/bin/install ./original/usr/bin/

@@ -1,0 +1,27 @@
+--- modprobe.c.orig	Wed Oct 25 05:21:17 2006
++++ modprobe.c	Sat Nov  4 22:10:12 2006
+@@ -736,8 +736,22 @@
+ 	}
+ 
+ 	if( !dt ) {
+-		bb_error_msg ("module %s not found.", mod);
+-		return;
++		path = mod;	// Add by Yuichiro Nakada
++		while (*path) {
++			if (*path == '_') *path = '-';
++			path++;
++		}
++		path = 0;	// ...end
++		for ( dt = depend; dt; dt = dt-> m_next ) {
++			if ( fnmatch ( dt-> m_name, mod, 0 ) == 0) {
++				break;
++			}
++		}
++
++		if( !dt ) {
++			bb_error_msg ("module %s not found.", mod);
++			return;
++		}
+ 	}
+ 
+ 	// resolve alias names

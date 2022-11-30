@@ -1,0 +1,12 @@
+--- arping.c.orig	Sat Jul 29 07:53:44 2006
++++ arping.c	Wed Nov 15 17:33:37 2006
+@@ -285,7 +285,8 @@
+ 		 * Advert also sets unsolicited.
+ 		 */
+ 		bb_opt_complementally = "Df:AU";
+-		opt = bb_getopt_ulflags(argc, argv, "DUAqfbc:w:i:s:",
++		//opt = bb_getopt_ulflags(argc, argv, "DUAqfbc:w:i:s:",
++		opt = bb_getopt_ulflags(argc, argv, "DUAqfbc:w:I:s:",
+ 						&_count, &_timeout, &_device);
+ 		cfg |= opt & 63; /* set respective flags */
+ 		if (opt & 64) /* count */
