@@ -1,0 +1,7 @@
+rpmbuild -ta busybox-1.22.1.tar.bz2 --target=i686
+
+
+gcc -m32 -nostdlib -Wl,--dynamic-linker, -Wl,-rpath-link,/usr/lib -L/usr/lib -nostdinc -isystem /usr/include/uClibc/ -iwithprefix include /usr/lib/uClibc/crti.o /usr/lib/uClibc/crt1.o hello.c -lgcc /usr/lib/uClibc/crtn.o /usr/lib/uClibc/libc.a
+
+/usr/lib/gcc/x86_64-redhat-linux/11/32/crtbegin.o
+
